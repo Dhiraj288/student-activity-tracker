@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Student Activity Tracker</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+    <main class="container">
+
+        <h1>Student Activity Tracker</h1>
+
+        <div class="page-actions">
+            <a
+                class="manage-link"
+                href="{{ url_for('manage_categories') }}"
+            >
+                Manage Categories
+            </a>
+        </div>
+
+        <!-- Dashboard -->
+
+        <section class="dashboard">
+
+            <div class="stat-card">
+                <h3>Total Activities</h3>
+                <p>{{ total_sessions }}</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Total Minutes</h3>
+                <p>{{ total_minutes }}</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Total Hours</h3>
+                <p>{{ total_hours }}</p>
+            </div>
+
+            <div class="stat-card today-card">
+                <h3>Today’s Activities</h3>
+                <p>{{ today_activities }}</p>
+            </div>
+
+            <div class="stat-card today-card">
+                <h3>Today’s Minutes</h3>
+                <p>{{ today_minutes }}</p>
+            </div>
+
+        </section>
+
+        <!-- Daily progress chart -->
+
+        <section class="card chart-card">
+
+            <h2>Daily Progress</h2>
+
+            {% if chart_labels %}
+
+                <div class="chart-container">
+
+                    <canvas
+                        id="studyChart"
+                        data-labels='{{ chart_labels | tojson | forceescape }}'
+                        data-values='{{ chart_data | tojson | forceescape }}'
+                    ></canvas>
+
+                </div>
+
+            {% else %}
+
+                <p>Add activities to display the graph.</p>
+
+            {% endif %}
+
+        </section>
+
+        <!-- Category chart -->
+
+        <section class="card chart-card">
+
+            <h2>Category-wise Progress</h2>
+
+            {% if category_labels %}
+
+                <div class="chart-container">
+
+                    <canvas
+                        id="categoryChart"
+                        data-labels='{{ category_labels | tojson | forceescape }}'
+                        data-values='{{ category_data | tojson | forceescape }}'
+                    ></canvas>
+
+                </div>
+
+            {% else %}
+
+                <p>Add activities to display category progress.</p>
+
+            {% endif %}
+
+        </section>
+
+        <!-- Add activity -->
+
+        <section class="card">
+
+            <h2>Add Activity</h2>
+
+            <form method="POST">
+
+                <label for="category">Category:</label>
+
+                <select
+                    id="category"
+                    name="category"
+                    required
+                >
+                    <option value="">
+                        Select category
+                    </option>
+
+                    {% for category in categories %}
+
+                        <option value="{{ category.name }}">
+                            {{ category.name }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+                <label for="subject">
+                    Activity details:
+                </label>
+
+                <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    placeholder="Example: Arrays revision"
+                    required
+                >
+
+                <label for="minutes">
+                    Duration (minutes):
+                </label>
+
+                <input
+                    type="number"
+                    id="minutes"
+                    name="minutes"
+                    min="1"
+                    required
+                >
+
+                <label for="study_date">Date:</label>
+
+                <input
+                    type="date"
+                    id="study_date"
+                    name="study_date"
+                    required
+                >
+
+                <button type="submit">
+                    Save Activity
+                </button>
+
+            </form>
+
+            {% if message %}
+
+                <p class="message">
+                    {{ message }}
+                </p>
+
+            {% endif %}
+
+        </section>
+
+        <!-- Activity history -->
+
+        <section class="card">
+
+            <h2>Activity History</h2>
+
+            <form
+                method="GET"
+                action="{{ url_for('home') }}"
+                class="filter-form"
+            >
+
+                <div class="filter-field">
+
+                    <label for="filter_category">
+                        Filter by category:
+                    </label>
+
+                    <select
+                        id="filter_category"
+                        name="filter_category"
+                    >
+                        <option value="">
+                            All categories
+                        </option>
+
+                        {% for category in categories %}
+
+                            <option
+                                value="{{ category.name }}"
+                                {% if selected_category == category.name %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ category.name }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="filter-field">
+
+                    <label for="filter_date">
+                        Filter by date:
+                    </label>
+
+                    <input
+                        type="date"
+                        id="filter_date"
+                        name="filter_date"
+                        value="{{ selected_date }}"
+                    >
+
+                </div>
+
+                <div class="filter-actions">
+
+                    <button type="submit">
+                        Apply Filter
+                    </button>
+
+                    <a
+                        class="clear-filter"
+                        href="{{ url_for('home') }}"
+                    >
+                        Clear
+                    </a>
+
+                    <a
+                        class="export-link"
+                        href="{{ url_for(
+                            'export_csv',
+                            filter_category=selected_category,
+                            filter_date=selected_date
+                        ) }}"
+                    >
+                        Download CSV
+                    </a>
+
+                </div>
+
+            </form>
+
+            {% if records %}
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Category</th>
+                                <th>Activity</th>
+                                <th>Duration</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for record in records %}
+
+                                <tr>
+                                    <td>{{ record.id }}</td>
+                                    <td>{{ record.category }}</td>
+                                    <td>{{ record.subject }}</td>
+
+                                    <td>
+                                        {{ record.minutes }} minutes
+                                    </td>
+
+                                    <td>{{ record.study_date }}</td>
+
+                                    <td class="action-cell">
+
+                                        <a
+                                            class="edit-link"
+                                            href="{{ url_for(
+                                                'edit_record',
+                                                record_id=record.id
+                                            ) }}"
+                                        >
+                                            Edit
+                                        </a>
+
+                                      <form
+    method="POST"
+    action="{{ url_for(
+        'delete_record',
+        record_id=record.id
+    ) }}"
+    onsubmit="return confirm('Delete this activity permanently?');"
+>
+                                        >
+                                            <button
+                                                type="submit"
+                                                class="delete-button"
+                                            >
+                                                Delete
+                                            </button>
+                                        </form>
+
+                                    </td>
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <p>No activities found.</p>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Daily line chart -->
+
+    <script>
+        const studyCanvas =
+            document.getElementById("studyChart");
+
+        if (studyCanvas) {
+            const studyLabels = JSON.parse(
+                studyCanvas.dataset.labels
+            );
+
+            const studyData = JSON.parse(
+                studyCanvas.dataset.values
+            );
+
+            new Chart(studyCanvas, {
+                type: "line",
+
+                data: {
+                    labels: studyLabels,
+
+                    datasets: [{
+                        label: "Activity Minutes",
+                        data: studyData,
+                        borderColor: "#2563eb",
+                        backgroundColor:
+                            "rgba(37, 99, 235, 0.15)",
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 5
+                    }]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+
+                            title: {
+                                display: true,
+                                text: "Minutes"
+                            }
+                        },
+
+                        x: {
+                            title: {
+                                display: true,
+                                text: "Date"
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+    <!-- Category bar chart -->
+
+    <script>
+        const categoryCanvas =
+            document.getElementById("categoryChart");
+
+        if (categoryCanvas) {
+            const categoryLabels = JSON.parse(
+                categoryCanvas.dataset.labels
+            );
+
+            const categoryData = JSON.parse(
+                categoryCanvas.dataset.values
+            );
+
+            new Chart(categoryCanvas, {
+                type: "bar",
+
+                data: {
+                    labels: categoryLabels,
+
+                    datasets: [{
+                        label: "Total Minutes",
+                        data: categoryData,
+
+                        backgroundColor: [
+                            "#2563eb",
+                            "#059669",
+                            "#f59e0b",
+                            "#7c3aed",
+                            "#dc2626",
+                            "#0891b2",
+                            "#ea580c",
+                            "#4f46e5"
+                        ],
+
+                        borderRadius: 6
+                    }]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+
+                            title: {
+                                display: true,
+                                text: "Minutes"
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

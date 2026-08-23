@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Edit Category</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+    <main class="container">
+
+        <h1>Edit Category</h1>
+
+        <section class="card">
+
+            <form method="POST">
+
+                <label for="name">Category name:</label>
+
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value="{{ category.name }}"
+                    required
+                >
+
+                <button type="submit">
+                    Update Category
+                </button>
+
+                <a href="{{ url_for('manage_categories') }}">
+                    Cancel
+                </a>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>
