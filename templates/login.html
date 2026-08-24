@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Login | Student Activity Tracker</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body class="auth-page">
+
+    <div class="auth-container">
+
+        <div class="auth-card">
+
+            <div class="auth-logo">SAT</div>
+
+            <h1>Welcome Back</h1>
+
+            <p class="auth-subtitle">
+                Login to view your activity dashboard
+            </p>
+
+            {% if error %}
+                <p class="error-message">
+                    {{ error }}
+                </p>
+            {% endif %}
+
+            {% if success %}
+                <p class="message">
+                    {{ success }}
+                </p>
+            {% endif %}
+
+            <form method="POST" class="auth-form">
+
+                <label for="email">Email Address</label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    maxlength="150"
+                    required
+                >
+
+                <label for="password">Password</label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                >
+
+                <button type="submit" class="auth-button">
+                    Login
+                </button>
+
+            </form>
+
+            <p class="auth-switch">
+                Don’t have an account?
+
+                <a href="{{ url_for('register') }}">
+                    Register here
+                </a>
+            </p>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

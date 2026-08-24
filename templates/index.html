@@ -18,7 +18,90 @@
 </head>
 
 <body>
+<header class="top-navbar">
 
+    <a href="{{ url_for('home') }}" class="brand">
+
+     <img
+    src="{{ url_for('static', filename='logo.png') }}"
+    alt="Student Activity Tracker Logo"
+    class="brand-logo-image"
+>
+
+        <span class="brand-text">
+            Student Activity Tracker
+        </span>
+
+    </a>
+
+    <nav class="nav-links">
+
+        <a href="{{ url_for('home') }}">
+            Dashboard
+        </a>
+
+        <a href="{{ url_for('manage_categories') }}">
+            Categories
+        </a>
+
+    </nav>
+
+    <details class="profile-menu">
+
+        <summary class="profile-summary">
+
+            <span class="profile-avatar">
+                {{ user_name[0] | upper }}
+            </span>
+
+            <span class="profile-name">
+                {{ user_name }}
+            </span>
+
+            <span class="dropdown-arrow">▼</span>
+
+        </summary>
+
+        <div class="profile-dropdown">
+
+            <div class="profile-info">
+
+                <span class="large-avatar">
+                    {{ user_name[0] | upper }}
+                </span>
+
+                <div>
+                    <strong>{{ user_name }}</strong>
+                    <small>Activity Tracker User</small>
+                </div>
+
+            </div>
+
+            <a href="{{ url_for('home') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('manage_categories') }}">
+                Manage Categories
+            </a>
+
+            <form
+                method="POST"
+                action="{{ url_for('logout') }}"
+            >
+                <button
+                    type="submit"
+                    class="logout-button"
+                >
+                    Logout
+                </button>
+            </form>
+
+        </div>
+
+    </details>
+
+</header>
     <main class="container">
 
         <h1>Student Activity Tracker</h1>
