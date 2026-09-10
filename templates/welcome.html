@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Record your daily activities, track your time, and see your progress with Student Activity Tracker.">
+    <title>Student Activity Tracker | Track your day</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="welcome-page">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+
+    <header class="welcome-header">
+        <a class="brand welcome-brand" href="{{ url_for('landing') }}" aria-label="Student Activity Tracker home">
+            <img src="{{ url_for('static', filename='logo.png') }}" width="48" height="48" class="brand-logo-image" alt="">
+            <span class="welcome-brand-name">Student Activity Tracker</span>
+        </a>
+
+        <nav class="welcome-nav" aria-label="Main navigation">
+            {% if session.get('user_id') %}
+                <a class="welcome-button welcome-primary" href="{{ url_for('home') }}">Dashboard</a>
+            {% else %}
+                <a class="welcome-login" href="{{ url_for('login') }}">Login</a>
+                <a class="welcome-button welcome-primary" href="{{ url_for('register') }}">Register</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="welcome-main" id="main-content">
+        <section class="welcome-hero" aria-labelledby="welcome-title">
+            <div class="welcome-copy">
+                <p class="welcome-eyebrow">A little structure for every day</p>
+                <h1 id="welcome-title">Track your activities.<br><span>See your progress.</span></h1>
+                <p class="welcome-intro">Keep your study sessions, projects, and daily activities in one place. Log your time, follow your progress, and build a routine that works for you.</p>
+
+                <div class="welcome-actions">
+                    {% if session.get('user_id') %}
+                        <a class="welcome-button welcome-primary" href="{{ url_for('home') }}">Open your dashboard</a>
+                    {% else %}
+                        <a class="welcome-button welcome-primary" href="{{ url_for('register') }}">Create an account</a>
+                        <a class="welcome-button welcome-secondary" href="{{ url_for('login') }}">Login</a>
+                    {% endif %}
+                </div>
+
+                <p class="welcome-detail">Activity history · Progress charts · CSV reports</p>
+            </div>
+
+            <div class="welcome-visual" aria-hidden="true">
+                <img src="{{ url_for('static', filename='logo.png') }}" width="400" height="400" class="welcome-logo" alt="">
+                <div class="welcome-visual-caption">
+                    <span>Study</span><span>Projects</span><span>Daily activities</span>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

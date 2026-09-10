@@ -19,11 +19,22 @@
 
 <body class="auth-page">
 
-    <div class="auth-container">
+    <main class="auth-container">
+
+        <a class="auth-home-link" href="{{ url_for('landing') }}">← Back to Home</a>
 
         <div class="auth-card">
 
-            <div class="auth-logo">SAT</div>
+            <div class="auth-brand">
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    class="auth-logo"
+                    width="64"
+                    height="64"
+                    alt=""
+                >
+                <span class="auth-brand-name">Student Activity Tracker</span>
+            </div>
 
             <h1>Welcome Back</h1>
 
@@ -32,13 +43,13 @@
             </p>
 
             {% if error %}
-                <p class="error-message">
+                <p class="error-message" role="alert">
                     {{ error }}
                 </p>
             {% endif %}
 
             {% if success %}
-                <p class="message">
+                <p class="message" role="status">
                     {{ success }}
                 </p>
             {% endif %}
@@ -51,6 +62,8 @@
                     type="email"
                     id="email"
                     name="email"
+                    autocomplete="email"
+                    value="{{ request.form.get('email', '') }}"
                     placeholder="Enter your email"
                     maxlength="150"
                     required
@@ -62,6 +75,7 @@
                     type="password"
                     id="password"
                     name="password"
+                    autocomplete="current-password"
                     placeholder="Enter your password"
                     required
                 >
@@ -82,7 +96,7 @@
 
         </div>
 
-    </div>
+    </main>
 
 </body>
 

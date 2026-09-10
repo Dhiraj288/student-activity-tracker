@@ -19,9 +19,17 @@
 
 <body>
 
-    <main class="container">
+    {% include "_navbar.html" %}
+
+    <main class="container" id="main-content">
 
         <h1>Manage Categories</h1>
+
+        {% for kind, message in get_flashed_messages(with_categories=True) %}
+            <p class="{{ 'error-message' if kind == 'error' else 'message' }}" role="status">
+                {{ message }}
+            </p>
+        {% endfor %}
 
         <section class="card">
 
@@ -35,6 +43,7 @@
                     type="text"
                     id="name"
                     name="name"
+                    maxlength="50"
                     placeholder="Example: Machine Learning"
                     required
                 >
@@ -55,17 +64,20 @@
 
             <h2>Available Categories</h2>
 
+            <p>Removing a category keeps your saved activities. Add the same name to use it again.</p>
+
             {% if categories %}
 
-                <div class="table-container">
+                <div class="table-container" tabindex="0" role="region" aria-label="Available categories">
 
-                    <table>
+                    <table class="category-table">
+                        <caption class="sr-only">Available activity categories</caption>
 
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Category Name</th>
-                                <th>Action</th>
+                                <th scope="col">ID</th>
+                                <th scope="col">Category Name</th>
+                                <th scope="col">Action</th>
                             </tr>
                         </thead>
 
@@ -91,18 +103,16 @@
                                         </a>
 
                                         <form
-                           method="POST"
-                       action="{{ url_for(
-                   'delete_category',
-                category_id=category.id
-                 ) }}"
-                               onsubmit="return confirm('Delete this category?');"
->
+                                            method="POST"
+                                            action="{{ url_for('delete_category', category_id=category.id) }}"
+                                            onsubmit="return confirm('Remove this category from your list? Your saved activities will be kept.');"
+                                        >
                                             <button
                                                 type="submit"
                                                 class="delete-button"
+                                                aria-label="Remove {{ category.name }}"
                                             >
-                                                Delete
+                                                Remove
                                             </button>
                                         </form>
 

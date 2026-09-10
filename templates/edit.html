@@ -19,15 +19,15 @@
 
 <body>
 
-    <main class="container">
+    {% include "_navbar.html" %}
+
+    <main class="container form-container" id="main-content">
 
         <h1>Edit Activity</h1>
 
         <section class="card">
 
             <form method="POST">
-
-                <label for="category">Category:</label>
 
                 <label for="category">Category:</label>
 
@@ -60,6 +60,7 @@
                     id="subject"
                     name="subject"
                     value="{{ record.subject }}"
+                    maxlength="100"
                     required
                 >
 

@@ -19,11 +19,22 @@
 
 <body class="auth-page">
 
-    <div class="auth-container">
+    <main class="auth-container">
+
+        <a class="auth-home-link" href="{{ url_for('landing') }}">← Back to Home</a>
 
         <div class="auth-card">
 
-            <div class="auth-logo">SAT</div>
+            <div class="auth-brand">
+                <img
+                    src="{{ url_for('static', filename='logo.png') }}"
+                    class="auth-logo"
+                    width="64"
+                    height="64"
+                    alt=""
+                >
+                <span class="auth-brand-name">Student Activity Tracker</span>
+            </div>
 
             <h1>Create Account</h1>
 
@@ -32,7 +43,7 @@
             </p>
 
             {% if error %}
-                <p class="error-message">
+                <p class="error-message" role="alert">
                     {{ error }}
                 </p>
             {% endif %}
@@ -45,6 +56,8 @@
                     type="text"
                     id="name"
                     name="name"
+                    autocomplete="name"
+                    value="{{ request.form.get('name', '') }}"
                     placeholder="Enter your full name"
                     maxlength="100"
                     required
@@ -56,6 +69,8 @@
                     type="email"
                     id="email"
                     name="email"
+                    autocomplete="email"
+                    value="{{ request.form.get('email', '') }}"
                     placeholder="Enter your email"
                     maxlength="150"
                     required
@@ -67,6 +82,7 @@
                     type="password"
                     id="password"
                     name="password"
+                    autocomplete="new-password"
                     placeholder="Minimum 8 characters"
                     minlength="8"
                     required
@@ -80,6 +96,7 @@
                     type="password"
                     id="confirm_password"
                     name="confirm_password"
+                    autocomplete="new-password"
                     placeholder="Enter password again"
                     minlength="8"
                     required
@@ -101,7 +118,7 @@
 
         </div>
 
-    </div>
+    </main>
 
 </body>
 
