@@ -66,6 +66,10 @@
 
             <h2>Add Activity</h2>
 
+            {% if not categories %}
+                <p><a href="{{ url_for('manage_categories') }}">Add a category</a> to record a new activity.</p>
+            {% endif %}
+
             <form method="POST" action="{{ url_for('home') }}" class="activity-form">
 
                 <div class="form-field">
@@ -234,7 +238,7 @@
                             All categories
                         </option>
 
-                        {% for category in categories %}
+                        {% for category in filter_categories %}
 
                             <option
                                 value="{{ category.name }}"

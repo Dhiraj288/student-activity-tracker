@@ -25,6 +25,12 @@
 
         <h1>Manage Categories</h1>
 
+        {% for kind, message in get_flashed_messages(with_categories=True) %}
+            <p class="{{ 'error-message' if kind == 'error' else 'message' }}" role="status">
+                {{ message }}
+            </p>
+        {% endfor %}
+
         <section class="card">
 
             <h2>Add New Category</h2>
@@ -57,6 +63,8 @@
         <section class="card">
 
             <h2>Available Categories</h2>
+
+            <p>Removing a category keeps your saved activities. Add the same name to use it again.</p>
 
             {% if categories %}
 
@@ -95,18 +103,16 @@
                                         </a>
 
                                         <form
-                           method="POST"
-                       action="{{ url_for(
-                   'delete_category',
-                category_id=category.id
-                 ) }}"
-                               onsubmit="return confirm('Delete this category?');"
->
+                                            method="POST"
+                                            action="{{ url_for('delete_category', category_id=category.id) }}"
+                                            onsubmit="return confirm('Remove this category from your list? Your saved activities will be kept.');"
+                                        >
                                             <button
                                                 type="submit"
                                                 class="delete-button"
+                                                aria-label="Remove {{ category.name }}"
                                             >
-                                                Delete
+                                                Remove
                                             </button>
                                         </form>
 

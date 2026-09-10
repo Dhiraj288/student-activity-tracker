@@ -2,6 +2,7 @@ from functools import wraps
 from flask import (
     Flask,
     Response,
+    flash,
     redirect,
     render_template,
     request,
@@ -37,7 +38,26 @@ def get_database_connection():
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
         database=os.getenv("DB_NAME"),
+        port=int(os.getenv("DB_PORT", "3306")),
     )
+
+
+def get_available_categories(cursor, user_id):
+    # Keep the shared catalog intact; removal is a preference for one account.
+    cursor.execute(
+        """
+        SELECT categories.id, categories.name
+        FROM categories
+        WHERE NOT EXISTS (
+            SELECT 1 FROM user_hidden_categories
+            WHERE user_hidden_categories.category_id = categories.id
+              AND user_hidden_categories.user_id = %s
+        )
+        ORDER BY categories.name
+        """,
+        (user_id,),
+    )
+    return cursor.fetchall()
 
 
 def login_required(view_function):
@@ -164,6 +184,8 @@ def home():
     user_id = session["user_id"]
     connection = get_database_connection()
     cursor = connection.cursor(dictionary=True)
+    categories = get_available_categories(cursor, user_id)
+    available_names = {category["name"] for category in categories}
 
     if request.method == "POST":
         category = request.form.get("category", "").strip()
@@ -171,7 +193,7 @@ def home():
         minutes_text = request.form.get("minutes", "").strip()
         study_date = request.form.get("study_date", "").strip()
 
-        if category and subject and minutes_text.isdigit() and study_date:
+        if category in available_names and subject and minutes_text.isdigit() and study_date:
             minutes = int(minutes_text)
             if minutes > 0:
                 cursor.execute(
@@ -275,8 +297,12 @@ def home():
         for record in category_records
     ]
 
-    cursor.execute("SELECT * FROM categories ORDER BY name")
-    categories = cursor.fetchall()
+    # Removed categories must remain usable when filtering existing history.
+    history_names = {record["category"] for record in all_records}
+    filter_categories = [
+        {"name": name}
+        for name in sorted(available_names | history_names, key=str.casefold)
+    ]
     cursor.close()
     connection.close()
 
@@ -285,6 +311,7 @@ def home():
         message=message,
         records=records,
         categories=categories,
+        filter_categories=filter_categories,
         total_sessions=total_sessions,
         total_minutes=total_minutes,
         total_hours=total_hours,
@@ -318,13 +345,20 @@ def edit_record(record_id):
         connection.close()
         return redirect(url_for("home"))
 
+    categories = get_available_categories(cursor, user_id)
+    available_names = {category["name"] for category in categories}
+    # Editing an old activity must not silently replace its removed category.
+    if record["category"] not in available_names:
+        categories.append({"name": record["category"]})
+        available_names.add(record["category"])
+
     if request.method == "POST":
         category = request.form.get("category", "").strip()
         subject = request.form.get("subject", "").strip()
         minutes_text = request.form.get("minutes", "").strip()
         study_date = request.form.get("study_date", "").strip()
 
-        if category and subject and minutes_text.isdigit() and study_date:
+        if category in available_names and subject and minutes_text.isdigit() and study_date:
             minutes = int(minutes_text)
             if minutes > 0:
                 cursor.execute(
@@ -348,8 +382,6 @@ def edit_record(record_id):
                 connection.close()
                 return redirect(url_for("home"))
 
-    cursor.execute("SELECT * FROM categories ORDER BY name")
-    categories = cursor.fetchall()
     cursor.close()
     connection.close()
     return render_template("edit.html", record=record, categories=categories)
@@ -378,24 +410,36 @@ def manage_categories():
 
     if request.method == "POST":
         category_name = request.form.get("name", "").strip()
-        if category_name:
+        if category_name and len(category_name) <= 50:
             cursor.execute(
                 "SELECT id FROM categories WHERE name = %s",
                 (category_name,),
             )
-            if cursor.fetchone() is None:
+            existing_category = cursor.fetchone()
+            if existing_category is None:
                 cursor.execute(
                     "INSERT INTO categories (name) VALUES (%s)",
                     (category_name,),
                 )
-                connection.commit()
+            else:
+                # Adding the same name restores this account's removed choice.
+                cursor.execute(
+                    """
+                    DELETE FROM user_hidden_categories
+                    WHERE user_id = %s AND category_id = %s
+                    """,
+                    (session["user_id"], existing_category["id"]),
+                )
+            connection.commit()
+            flash("Category is available in your list.", "success")
+        else:
+            flash("Enter a category name with 1 to 50 characters.", "error")
 
         cursor.close()
         connection.close()
         return redirect(url_for("manage_categories"))
 
-    cursor.execute("SELECT * FROM categories ORDER BY name")
-    categories = cursor.fetchall()
+    categories = get_available_categories(cursor, session["user_id"])
     cursor.close()
     connection.close()
     return render_template("categories.html", categories=categories)
@@ -407,8 +451,15 @@ def edit_category(category_id):
     connection = get_database_connection()
     cursor = connection.cursor(dictionary=True)
     cursor.execute(
-        "SELECT * FROM categories WHERE id = %s",
-        (category_id,),
+        """
+        SELECT * FROM categories
+        WHERE id = %s AND NOT EXISTS (
+            SELECT 1 FROM user_hidden_categories
+            WHERE user_hidden_categories.category_id = categories.id
+              AND user_hidden_categories.user_id = %s
+        )
+        """,
+        (category_id, session["user_id"]),
     )
     category = cursor.fetchone()
 
@@ -467,20 +518,15 @@ def delete_category(category_id):
     if category:
         cursor.execute(
             """
-            SELECT COUNT(*) AS usage_count
-            FROM study_records
-            WHERE category = %s
+            INSERT IGNORE INTO user_hidden_categories (user_id, category_id)
+            VALUES (%s, %s)
             """,
-            (category["name"],),
+            (session["user_id"], category_id),
         )
-        usage_count = cursor.fetchone()["usage_count"]
-
-        if usage_count == 0:
-            cursor.execute(
-                "DELETE FROM categories WHERE id = %s",
-                (category_id,),
-            )
-            connection.commit()
+        connection.commit()
+        flash("Category removed from your list. Existing activities were kept.", "success")
+    else:
+        flash("This category is no longer available.", "error")
 
     cursor.close()
     connection.close()

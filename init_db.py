@@ -41,6 +41,21 @@ cursor.execute("""
 
 
 cursor.execute("""
+    CREATE TABLE IF NOT EXISTS user_hidden_categories (
+        user_id INT NOT NULL,
+        category_id INT NOT NULL,
+        PRIMARY KEY (user_id, category_id),
+
+        CONSTRAINT fk_hidden_categories_user
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+
+        CONSTRAINT fk_hidden_categories_category
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+    )
+""")
+
+
+cursor.execute("""
     CREATE TABLE IF NOT EXISTS study_records (
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
@@ -67,6 +82,8 @@ default_categories = [
 ]
 
 
+# Defaults stay in the catalog. INSERT IGNORE preserves their IDs, so running
+# setup again does not restore choices saved in user_hidden_categories.
 cursor.executemany(
     "INSERT IGNORE INTO categories (name) VALUES (%s)",
     default_categories
