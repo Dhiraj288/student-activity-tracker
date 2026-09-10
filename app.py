@@ -57,6 +57,11 @@ def safe_csv_value(value):
     return text
 
 
+@app.route("/")
+def landing():
+    return render_template("welcome.html")
+
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if "user_id" in session:
@@ -149,10 +154,10 @@ def login():
 @login_required
 def logout():
     session.clear()
-    return redirect(url_for("login"))
+    return redirect(url_for("landing"))
 
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def home():
     message = ""
