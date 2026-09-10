@@ -18,101 +18,15 @@
 </head>
 
 <body>
-<header class="top-navbar">
+{% include "_navbar.html" %}
+    <main class="container" id="main-content">
 
-    <a href="{{ url_for('home') }}" class="brand">
-
-     <img
-    src="{{ url_for('static', filename='logo.png') }}"
-    alt="Student Activity Tracker Logo"
-    class="brand-logo-image"
->
-
-        <span class="brand-text">
-            Student Activity Tracker
-        </span>
-
-    </a>
-
-    <nav class="nav-links">
-
-        <a href="{{ url_for('home') }}">
-            Dashboard
-        </a>
-
-        <a href="{{ url_for('manage_categories') }}">
-            Categories
-        </a>
-
-    </nav>
-
-    <details class="profile-menu">
-
-        <summary class="profile-summary">
-
-            <span class="profile-avatar">
-                {{ user_name[0] | upper }}
-            </span>
-
-            <span class="profile-name">
-                {{ user_name }}
-            </span>
-
-            <span class="dropdown-arrow">▼</span>
-
-        </summary>
-
-        <div class="profile-dropdown">
-
-            <div class="profile-info">
-
-                <span class="large-avatar">
-                    {{ user_name[0] | upper }}
-                </span>
-
-                <div>
-                    <strong>{{ user_name }}</strong>
-                    <small>Activity Tracker User</small>
-                </div>
-
+        <div class="page-heading">
+            <div>
+                <p class="eyebrow">Your activity overview</p>
+                <h1>Dashboard</h1>
             </div>
-
-            <a href="{{ url_for('home') }}">
-                Dashboard
-            </a>
-
-            <a href="{{ url_for('manage_categories') }}">
-                Manage Categories
-            </a>
-
-            <form
-                method="POST"
-                action="{{ url_for('logout') }}"
-            >
-                <button
-                    type="submit"
-                    class="logout-button"
-                >
-                    Logout
-                </button>
-            </form>
-
-        </div>
-
-    </details>
-
-</header>
-    <main class="container">
-
-        <h1>Student Activity Tracker</h1>
-
-        <div class="page-actions">
-            <a
-                class="manage-link"
-                href="{{ url_for('manage_categories') }}"
-            >
-                Manage Categories
-            </a>
+            <a class="manage-link" href="#add-activity">Add Activity</a>
         </div>
 
         <!-- Dashboard -->
@@ -146,6 +60,96 @@
 
         </section>
 
+        <!-- Add activity -->
+
+        <section class="card" id="add-activity">
+
+            <h2>Add Activity</h2>
+
+            <form method="POST" action="{{ url_for('home') }}" class="activity-form">
+
+                <div class="form-field">
+                <label for="category">Category:</label>
+
+                <select
+                    id="category"
+                    name="category"
+                    required
+                >
+                    <option value="">
+                        Select category
+                    </option>
+
+                    {% for category in categories %}
+
+                        <option value="{{ category.name }}">
+                            {{ category.name }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+                </div>
+
+                <div class="form-field">
+                <label for="subject">
+                    Activity details:
+                </label>
+
+                <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    placeholder="Example: Arrays revision"
+                    maxlength="100"
+                    required
+                >
+                </div>
+
+                <div class="form-field">
+                <label for="minutes">
+                    Duration (minutes):
+                </label>
+
+                <input
+                    type="number"
+                    id="minutes"
+                    name="minutes"
+                    min="1"
+                    required
+                >
+                </div>
+
+                <div class="form-field">
+                <label for="study_date">Date:</label>
+
+                <input
+                    type="date"
+                    id="study_date"
+                    name="study_date"
+                    required
+                >
+                </div>
+
+                <div class="form-actions">
+                <button type="submit">
+                    Save Activity
+                </button>
+                </div>
+
+            </form>
+
+            {% if message %}
+
+                <p class="{{ 'message' if request.args.get('saved') == '1' else 'error-message' }}" role="status">
+                    {{ message }}
+                </p>
+
+            {% endif %}
+
+        </section>
+
+        <div class="charts-grid">
         <!-- Daily progress chart -->
 
         <section class="card chart-card">
@@ -158,11 +162,13 @@
 
                     <canvas
                         id="studyChart"
+                        role="img" aria-label="Daily activity duration in minutes"
                         data-labels='{{ chart_labels | tojson | forceescape }}'
                         data-values='{{ chart_data | tojson | forceescape }}'
                     ></canvas>
 
                 </div>
+                <p class="chart-fallback" hidden>Chart unavailable. You can still view your activities in the history below.</p>
 
             {% else %}
 
@@ -184,11 +190,13 @@
 
                     <canvas
                         id="categoryChart"
+                        role="img" aria-label="Activity duration by category in minutes"
                         data-labels='{{ category_labels | tojson | forceescape }}'
                         data-values='{{ category_data | tojson | forceescape }}'
                     ></canvas>
 
                 </div>
+                <p class="chart-fallback" hidden>Chart unavailable. You can still view your activities in the history below.</p>
 
             {% else %}
 
@@ -198,83 +206,7 @@
 
         </section>
 
-        <!-- Add activity -->
-
-        <section class="card">
-
-            <h2>Add Activity</h2>
-
-            <form method="POST">
-
-                <label for="category">Category:</label>
-
-                <select
-                    id="category"
-                    name="category"
-                    required
-                >
-                    <option value="">
-                        Select category
-                    </option>
-
-                    {% for category in categories %}
-
-                        <option value="{{ category.name }}">
-                            {{ category.name }}
-                        </option>
-
-                    {% endfor %}
-
-                </select>
-
-                <label for="subject">
-                    Activity details:
-                </label>
-
-                <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    placeholder="Example: Arrays revision"
-                    required
-                >
-
-                <label for="minutes">
-                    Duration (minutes):
-                </label>
-
-                <input
-                    type="number"
-                    id="minutes"
-                    name="minutes"
-                    min="1"
-                    required
-                >
-
-                <label for="study_date">Date:</label>
-
-                <input
-                    type="date"
-                    id="study_date"
-                    name="study_date"
-                    required
-                >
-
-                <button type="submit">
-                    Save Activity
-                </button>
-
-            </form>
-
-            {% if message %}
-
-                <p class="message">
-                    {{ message }}
-                </p>
-
-            {% endif %}
-
-        </section>
+        </div>
 
         <!-- Activity history -->
 
@@ -364,18 +296,19 @@
 
             {% if records %}
 
-                <div class="table-container">
+                <div class="table-container" tabindex="0" role="region" aria-label="Activity history">
 
                     <table>
 
+                        <caption class="sr-only">Activity history with edit and delete actions</caption>
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Category</th>
-                                <th>Activity</th>
-                                <th>Duration</th>
-                                <th>Date</th>
-                                <th>Action</th>
+                                <th scope="col">ID</th>
+                                <th scope="col">Category</th>
+                                <th scope="col">Activity</th>
+                                <th scope="col">Duration</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Action</th>
                             </tr>
                         </thead>
 
@@ -414,7 +347,6 @@
     ) }}"
     onsubmit="return confirm('Delete this activity permanently?');"
 >
-                                        >
                                             <button
                                                 type="submit"
                                                 class="delete-button"
@@ -446,13 +378,22 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <script>
+        if (typeof Chart === "undefined") {
+            document.querySelectorAll(".chart-fallback").forEach(function (message) {
+                message.hidden = false;
+                message.previousElementSibling.hidden = true;
+            });
+        }
+    </script>
+
     <!-- Daily line chart -->
 
     <script>
         const studyCanvas =
             document.getElementById("studyChart");
 
-        if (studyCanvas) {
+        if (studyCanvas && typeof Chart !== "undefined") {
             const studyLabels = JSON.parse(
                 studyCanvas.dataset.labels
             );
@@ -512,7 +453,7 @@
         const categoryCanvas =
             document.getElementById("categoryChart");
 
-        if (categoryCanvas) {
+        if (categoryCanvas && typeof Chart !== "undefined") {
             const categoryLabels = JSON.parse(
                 categoryCanvas.dataset.labels
             );

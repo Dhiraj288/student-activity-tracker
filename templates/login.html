@@ -19,7 +19,7 @@
 
 <body class="auth-page">
 
-    <div class="auth-container">
+    <main class="auth-container">
 
         <div class="auth-card">
 
@@ -32,13 +32,13 @@
             </p>
 
             {% if error %}
-                <p class="error-message">
+                <p class="error-message" role="alert">
                     {{ error }}
                 </p>
             {% endif %}
 
             {% if success %}
-                <p class="message">
+                <p class="message" role="status">
                     {{ success }}
                 </p>
             {% endif %}
@@ -51,6 +51,8 @@
                     type="email"
                     id="email"
                     name="email"
+                    autocomplete="email"
+                    value="{{ request.form.get('email', '') }}"
                     placeholder="Enter your email"
                     maxlength="150"
                     required
@@ -62,6 +64,7 @@
                     type="password"
                     id="password"
                     name="password"
+                    autocomplete="current-password"
                     placeholder="Enter your password"
                     required
                 >
@@ -82,7 +85,7 @@
 
         </div>
 
-    </div>
+    </main>
 
 </body>
 

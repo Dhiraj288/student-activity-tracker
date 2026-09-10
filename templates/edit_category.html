@@ -19,7 +19,9 @@
 
 <body>
 
-    <main class="container">
+    {% include "_navbar.html" %}
+
+    <main class="container form-container" id="main-content">
 
         <h1>Edit Category</h1>
 
@@ -33,6 +35,7 @@
                     type="text"
                     id="name"
                     name="name"
+                    maxlength="50"
                     value="{{ category.name }}"
                     required
                 >

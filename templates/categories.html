@@ -19,7 +19,9 @@
 
 <body>
 
-    <main class="container">
+    {% include "_navbar.html" %}
+
+    <main class="container" id="main-content">
 
         <h1>Manage Categories</h1>
 
@@ -35,6 +37,7 @@
                     type="text"
                     id="name"
                     name="name"
+                    maxlength="50"
                     placeholder="Example: Machine Learning"
                     required
                 >
@@ -57,15 +60,16 @@
 
             {% if categories %}
 
-                <div class="table-container">
+                <div class="table-container" tabindex="0" role="region" aria-label="Available categories">
 
-                    <table>
+                    <table class="category-table">
+                        <caption class="sr-only">Available activity categories</caption>
 
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Category Name</th>
-                                <th>Action</th>
+                                <th scope="col">ID</th>
+                                <th scope="col">Category Name</th>
+                                <th scope="col">Action</th>
                             </tr>
                         </thead>
 

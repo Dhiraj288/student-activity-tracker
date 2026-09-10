@@ -1,0 +1,87 @@
+{% set user_name = session.get("user_name") or "User" %}
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="top-navbar">
+
+    <a href="{{ url_for('home') }}" class="brand">
+
+     <img
+    src="{{ url_for('static', filename='logo.png') }}"
+    alt="Student Activity Tracker Logo"
+    class="brand-logo-image"
+    width="48" height="48"
+>
+
+        <span class="brand-text">
+            Student Activity Tracker
+        </span>
+
+    </a>
+
+    <nav class="nav-links" aria-label="Main navigation">
+
+        <a href="{{ url_for('home') }}"{% if request.endpoint == 'home' %} aria-current="page"{% endif %}>
+            Dashboard
+        </a>
+
+        <a href="{{ url_for('manage_categories') }}"{% if request.endpoint in ['manage_categories', 'edit_category'] %} aria-current="page"{% endif %}>
+            Categories
+        </a>
+
+    </nav>
+
+    <details class="profile-menu">
+
+        <summary class="profile-summary" aria-label="Account menu for {{ user_name }}">
+
+            <span class="profile-avatar">
+                {{ user_name[0] | upper }}
+            </span>
+
+            <span class="profile-name">
+                {{ user_name }}
+            </span>
+
+            <span class="dropdown-arrow" aria-hidden="true">▼</span>
+
+        </summary>
+
+        <div class="profile-dropdown">
+
+            <div class="profile-info">
+
+                <span class="large-avatar">
+                    {{ user_name[0] | upper }}
+                </span>
+
+                <div>
+                    <strong>{{ user_name }}</strong>
+                    <small>Activity Tracker User</small>
+                </div>
+
+            </div>
+
+            <a href="{{ url_for('home') }}"{% if request.endpoint == 'home' %} aria-current="page"{% endif %}>
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('manage_categories') }}"{% if request.endpoint in ['manage_categories', 'edit_category'] %} aria-current="page"{% endif %}>
+                Manage Categories
+            </a>
+
+            <form
+                method="POST"
+                action="{{ url_for('logout') }}"
+            >
+                <button
+                    type="submit"
+                    class="logout-button"
+                >
+                    Logout
+                </button>
+            </form>
+
+        </div>
+
+    </details>
+
+</header>
