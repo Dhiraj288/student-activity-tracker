@@ -849,17 +849,27 @@ th { font-size: 14px; }
     background: var(--card);
     box-shadow: 0 20px 60px rgba(30, 27, 75, 0.10);
 }
+.auth-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 26px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+}
 .auth-logo {
-    display: grid;
-    place-items: center;
-    width: 56px;
-    height: 56px;
-    margin-bottom: 24px;
-    border-radius: 16px;
-    background: var(--primary);
-    color: white;
-    font-weight: 800;
-    letter-spacing: 1px;
+    display: block;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+.auth-brand-name {
+    min-width: 0;
+    font-size: 17px;
+    line-height: 1.4;
+    font-weight: 750;
+    color: var(--text);
 }
 .auth-card h1 { font-size: clamp(26px, 5vw, 32px); line-height: 1.2; }
 .auth-subtitle { color: var(--muted); margin: 10px 0 26px; }
