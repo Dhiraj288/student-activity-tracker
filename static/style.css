@@ -47,6 +47,29 @@ body {
     margin: 32px auto 48px;
 }
 
+.site-footer {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto 28px;
+    padding: 18px 0 4px;
+    border-top: 1px solid rgba(148, 163, 184, 0.35);
+    color: var(--muted);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.site-footer p {
+    margin: 0;
+}
+
+.site-footer a {
+    color: var(--primary-dark);
+    font-weight: 700;
+}
+
+.site-footer a:hover {
+    color: var(--primary);
+}
+
 h1 {
     margin: 0 0 10px;
     text-align: left;
@@ -840,7 +863,7 @@ th { font-size: 14px; }
 }
 
 /* Authentication pages share the dashboard's indigo palette. */
-.auth-page { display: grid; place-items: center; padding: 32px 16px; }
+.auth-page { display: grid; grid-template-rows: 1fr auto; place-items: center; gap: 24px; padding: 32px 16px; }
 .auth-container { width: 100%; max-width: 440px; }
 .auth-card {
     padding: 36px;
